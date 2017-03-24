@@ -9,14 +9,14 @@
 <body>
 
     <div class="container">
-        <div class="panel panel-default">
+        <div class="panel panel-default" id="chat">
 
             <div class="panel-body">
-                <div class="message">
-                    <span class="label label-default">Luan Oliveira</span>
-                    <p>dasdasdasd</p>
+                <div class="message" v-for="message in messages">
+                    <span class="label label-default">{{ message.name }}</span>
+                    <p>{{ message.message }}</p>
                     <hr>
-                </div>
+                </div><!-- .message -->
             </div><!-- .panel-body -->
 
             <div class="panel-footer">
@@ -37,8 +37,17 @@
     </div><!-- .container -->
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.5/vue.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript">
+
+    var app = new Vue({
+        el: "#chat",
+        data: {
+            messages: []
+        }
+    });
+
     var conn = new WebSocket('ws://localhost:8080/chat');
 
     $("#send").on("submit", function(event) {
@@ -48,13 +57,9 @@
     });
 
     conn.onmessage = function(event) {
-        var $messages = $('#messages');
-
         var data = JSON.parse(event.data);
-        console.log( data );
 
-        $messages.prepend('<p>'+data.message+'</p>');
-        console.log(event);
+        app.$data.messages.push({ name: "Fulano", message: data.message });
     }
     </script>
 </body>
