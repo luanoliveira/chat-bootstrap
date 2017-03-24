@@ -8,33 +8,57 @@
 </head>
 <body>
 
-    <div class="container">
-        <div class="panel panel-default" id="chat">
+    <div id="chat">
 
-            <div class="panel-body">
-                <div class="message" v-for="message in messages">
-                    <span class="label label-default">{{ message.name }}</span>
-                    <p>{{ message.message }}</p>
-                    <hr>
-                </div><!-- .message -->
-            </div><!-- .panel-body -->
+        <div class="container">
+            <div class="panel panel-default" v-if="name">
 
-            <div class="panel-footer">
-                <form id="send">
-                    <div class="row">
-                        <div class="col-xs-8 col-sm-10">
-                            <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="message">    
-                        </div><!-- .col-* -->
+                <div class="panel-heading">Bem-Vindo: {{name}}</div>
 
-                        <div class="col-xs-4 col-sm-2">
-                            <button type="submit" class="btn btn-block btn-primary">Enviar</button>
-                        </div><!-- .col-* -->
-                    </div><!-- .row -->
-                </form><!-- #message -->         
-            </div><!-- .panel-footer -->
+                <div class="panel-body" v-if="messages.length">
+                    <div class="message" v-for="message in messages">
+                        <span class="label label-default">{{ message.name }}</span>
+                        <p>{{ message.message }}</p>
+                        <hr>
+                    </div><!-- .message -->
+                </div><!-- .panel-body -->
 
-        </div><!-- .panel -->
-    </div><!-- .container -->
+                <div class="panel-footer">
+                    <form id="send">
+                        <div class="row">
+                            <div class="col-xs-8 col-sm-10">
+                                <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="message">    
+                            </div><!-- .col-* -->
+
+                            <div class="col-xs-4 col-sm-2">
+                                <button type="submit" class="btn btn-block btn-primary">Enviar</button>
+                            </div><!-- .col-* -->
+                        </div><!-- .row -->
+                    </form><!-- #send -->         
+                </div><!-- .panel-footer -->
+
+            </div><!-- .panel -->
+
+            <div class="panel panel-default" v-if="!name">
+
+                <div class="panel-body">
+                    <form id="welcome">
+                        <div class="row">
+                            <div class="col-xs-8 col-sm-10">
+                                <input type="text" class="form-control" placeholder="Nome" id="name">    
+                            </div><!-- .col-* -->
+
+                            <div class="col-xs-4 col-sm-2">
+                                <button type="submit" class="btn btn-block btn-default">Entrar</button>
+                            </div><!-- .col-* -->
+                        </div><!-- .row -->
+                    </form><!-- #welcome -->
+                </div><!-- .panel-body -->
+
+            </div><!-- .panel -->
+        </div><!-- .container -->
+
+    </div><!-- #chat -->
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.5/vue.js"></script>
@@ -44,22 +68,28 @@
     var app = new Vue({
         el: "#chat",
         data: {
-            messages: []
+            messages: [],
+            name: null
         }
     });
 
     var conn = new WebSocket('ws://localhost:8080/chat');
 
-    $("#send").on("submit", function(event) {
+    $('body').delegate('#welcome', 'submit', function(event) {
         event.preventDefault();
-        conn.send(JSON.stringify({ message: $("#message").val() }));
-        $("#message").val("");
+        app.$data.name = $("#name").val();
     });
+
+    $('body').delegate('#send', 'submit', function(event) {
+        event.preventDefault();
+        conn.send(JSON.stringify({ name: app.$data.name, message: $("#message").val() }));
+        $("#message").val("");
+    });    
 
     conn.onmessage = function(event) {
         var data = JSON.parse(event.data);
 
-        app.$data.messages.push({ name: "Fulano", message: data.message });
+        app.$data.messages.push({ name: data.name, message: data.message });
     }
     </script>
 </body>

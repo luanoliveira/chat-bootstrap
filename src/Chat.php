@@ -21,7 +21,7 @@ class Chat implements MessageComponentInterface {
 
         var_dump($dados);
 
-        foreach ($this->clients as $client) {
+        foreach ($this->clients as $client) {      
             $client->send($msg);
         }
     }
